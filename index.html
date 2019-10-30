@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+	<title>Tarea 5 | Visual Analytics</title>
+	  <!-- Materialize CSS -->
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+	<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+	
+    <script src="https://d3js.org/d3.v4.min.js"></script>
+    
+     <!-- Latest compiled and minified CSS -->
+    <script src="https://d3js.org/d3.v4.min.js"></script>
+    <script src="https://d3js.org/d3-scale-chromatic.v0.3.min.js"></script>
+    <link href="https://fonts.googleapis.com/css?family=Catamaran" rel="stylesheet">
+	
+	  <script src="https://d3js.org/d3.v4.min.js"></script>
+    <script src="https://d3js.org/d3.v4.min.js"></script>
+    <script src="https://d3js.org/d3.v4.min.js"></script>
+   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+   <script src="https://d3js.org/d3-time.v1.min.js"></script>
+   <script src="https://d3js.org/d3-time-format.v2.min.js"></script>
+   <script src="https://d3js.org/d3-color.v1.min.js"></script>
+   <script src="https://d3js.org/d3-interpolate.v1.min.js"></script>
+   <script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
+
+	  <!-- Internal -->
+	<link rel="stylesheet" href="css/style.css">
+	
+	 <style>
+       body {
+            font-family: 'Catamaran', sans-serif;
+            margin: 20px;
+            top: 20px;
+            right: 20px;
+            bottom: 20px;
+            left: 20px;
+        }
+
+        line {
+            stroke: lightgray;
+        }
+
+        .arc path {
+            stroke: white;
+        }
+
+        .arc text {
+            fill: black;
+            stroke: none;
+            pointer-events: none;
+        }
+
+        .text-path {
+            stroke: none;
+            fill: none;
+        }
+		
+		.toolTip {
+          position: absolute;
+          display: none;
+          min-width: 80px;
+          height: auto;
+          background: none repeat scroll 0 0 #ffffff;
+          border: 1px solid #aca;
+          padding: 14px;
+          text-align: center;
+        }
+    </style>
+ </head>
+
+  <body>
+
+ <div class='container'>
+ 
+ <div class="container">
+    <div class="row">
+      <div class="col s12">
+        <div class="card">
+		<h3>Colombianos detenidos en el exterior</h3>
+		  <div class="card-image">
+            <img src="img/presos.jpeg">
+          </div>
+          <div class="card-content">
+            <p>Información estadística de los colombianos detenidos en el exterior que incluye datos demográficos y datos de ubicación de las prisiones a partir del 2018.</p>
+			<p>Se inspira en el ejemplo de <a href="https://beta.observablehq.com/@mbostock/d3-force-directed-graph" target="_blank"> D3 Force-Directed Graph (Mike Bostock)</a> y en los trabajos de investigación vinculados desde la publicación de ese blog.</p>
+            <p>Datos publicados por <a href="https://www.datos.gov.co/Estad-sticas-Nacionales/Colombianos-detenidos-en-el-exterior/e97j-vuf7" target="_blank">Datos Abiertos	</a>.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col s12">
+        <div class="card">
+          <div class="card-content">
+            <span class="card-title"><span class="badge"><i class="material-icons left">insert_chart</i></span>Colombianos detenidos en el exterior</span>
+                   <div id="legend" align="center"></div>
+				<div id="chart" width="600px" align="center"></div>
+				  <svg width="1000"
+           height="500"
+           id="network">
+      </svg>
+				
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+   <hr>
+  
+  <div class="container">
+    <div class="row">
+      <h2 class="section-title">About the vis</h2>
+      <div class="col s12 m4">
+        <div class="card">
+          <div class="card-image red darken-3 noimage">
+            <span class="card-title">What</span>
+          </div>
+          <div class="card-content">
+            <p>Dataset Type:  Networks </p>
+            <p>Attributes: 
+              <ol>
+                <li>Nodo: Pais (Categorical)</li>
+				<li>Nodo: Delito (Categorical)</li>
+				<li>Nodo: Cantidad (Ordered, Quantitative)</li>
+                <li>Cantidad* (Ordered, Quantitative)</li>
+				<li>Links: Pais (Categorical)</li>
+				<li>Links: Delito (Categorical)</li>
+              </ol>
+            </p>
+            <p><small>*Derived</small></p>
+          </div>
+        </div>
+      </div>
+      <div class="col s12 m4">
+        <div class="card">
+          <div class="card-image yellow darken-3 noimage">
+            <span class="card-title">Why</span>
+          </div>
+          <div class="card-content">
+            <ul class="browser-default">
+              <li>Encontrar la relacion entre los paises y los delitos cometidos. <b>(Explore-Topology)</b></li>
+              <li>Identificar los paises con mayor numero de delitos <b>(Identify - > Clusters)</b></li>
+             </ul>
+          </div>
+        </div>
+      </div>
+      <div class="col s12 m4">
+        <div class="card">
+          <div class="card-image green darken-1 noimage">
+            <span class="card-title">How</span>
+          </div>
+          <div class="card-content">
+            <p>
+              <ul>
+                <li>Mark: Shape.
+					<ul class="browser-default">
+						<li>[1] Puntos (Nodos)</li>
+						<li>[2] Lineas (conexiones)</li>
+					  </ul>
+				</li>
+                <li>Channels:
+                  <ul class="browser-default">
+                    <li>[1] Color Hue (identificar nodos).</li>
+                    <li>[2] Tamaño (Cantidad delitos)</li>
+                  </ul></li>
+              </ul>
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col s12">
+        <div class="card">
+          <div class="card-content">
+            <span class="card-title">Insights</span>
+            <ul class="browser-default">
+              <li>Los delitos de narcotrafico y de hurto son los mayores cometidos por los colombianos en el exterior.</li>
+              <li>Ecuador es el pais suramericano con un gran numero de detenidos, solo lo supera EEUU.</li>
+              <li>Existen colombianos detenidos casi en toda suramerica, lo que indica la facilidad de migrar al mismo continente.</li>
+             </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col s12">
+        <div class="card">
+          <div class="card-content">
+            <span class="card-title">Tecnologías</span>
+            <ul class="browser-default">
+              <li>D3: <a href="https://d3js.org" target="_blank">https://d3js.org</a></li>
+              <li>Materialize: <a href="https://materializecss.com" target="_blank">https://materializecss.com</a></li>
+              <li>Microsoft Excel (derivar data)</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <footer class="page-footer grey darken-4">
+    <div class="container">
+      <div class="row">
+        <div class="col l6 s12">
+          <h5 class="white-text">Visual Analytics</h5>
+          <p class="grey-text text-lighten-2">Esta visualización fue desarrollada para <a href="http://johnguerra.co/classes/visual_analytics_fall_2019/" target="_blank">Visual Analytics</a> clase (2019-20) de la <a href="https://uniandes.edu.co/" target="_blank">Universidad de los Andes</a>.</p>
+        </div>
+        <div class="col l4 offset-l2 s12">
+          <h5 class="white-text">Contenido</h5>
+          <ul>
+            <li><a href="https://github.com/wjrincon10/Tarea5" target="_blank">Source Code</a></li>
+            <li><a href="https://drive.google.com/file/d/1PMF3G0_oKg2BJY_F0CXpgGj6sJ0NJot7/view?usp=sharing" target="_blank">Slides</a></li>
+            <li><a href="" target="_blank">Youtube Video</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+		<div class="footer-copyright black">
+			  <div class="container">
+			  2019 MIT Licenced Content by <a href="#" target="_blank">Wilman Rincon</a><br>
+			  Código: 201421877<br>
+			  Correo: wj.rincon10@uniandes.edu.co<br>
+			  Universidad de los Andes<br>
+			  Maestría en Ingeniería de la Información
+			  </div>
+		</div>
+	</footer>
+    <script src="js/network.js"></script>
+	</body>
+</html>
